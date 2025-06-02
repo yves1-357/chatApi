@@ -19,7 +19,7 @@ class ChatController extends Controller
             'messages' => [
                 ['role' => 'user', 'content' => $question]
             ],
-            'max_tokens' => 256,
+            'max_tokens' => 500,
         ]);
 
         if($reponse->successful()){
