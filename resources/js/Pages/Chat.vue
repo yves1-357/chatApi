@@ -10,7 +10,7 @@ const envoieQuestion = async () => {
     reponse.value = '' // reset
     try {
         //appel api laravel, a cree plu tard
-        const res = await axios.post('/api/chat', {question:question.value})
+        const res = await axios.post('/monchatai/public/api/chat', {question:question.value})
         reponse.value = res.data.answer
     } catch (error) {
         reponse.value = "Erreur de la requete"
