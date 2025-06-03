@@ -110,7 +110,7 @@ const envoieQuestion = async () => {
     />
 
     <!-- Zone principale : chat et saisie -->
-    <main class="flex-1 flex flex-col">
+    <main class="flex-1 flex flex-col bg-white dark:">
 
       <!-- Affichage des messages -->
       <div class="flex-1 overflow-y-auto px-4 py-6 bg-gray-50">
