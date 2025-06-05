@@ -37,7 +37,7 @@ class ChatController extends Controller
         //app openrouter à activer plus tard ======
 
         $reponse = Http::withHeaders([
-            'Authorization' => 'Bearer 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',
+            'Authorization' => 'Bearer ' . env  ('OPENROUTER_API_KEY'),
             'HTTP-Referer' => 'https://localhost',
             'OpenAI-Referer' => 'https://localhost',
         ])->post('https://openrouter.ai/api/v1/chat/completions',[
