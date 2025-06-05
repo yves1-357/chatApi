@@ -115,7 +115,7 @@ const isNewChat = computed(() => {
     <main class="flex-1 flex flex-col relative overflow-hidden">
       <div v-if="isNewChat" class=" text-white py-4">
         <div class="max-w-1xl mx-auto px-2 flex items-center justify-left">
-          <span class="text-xl font-semibold">Stella</span>
+          <span class="text-xl font-bold">Stella</span>
           <span class="ml-2 text-s">&#x25B6;</span>
         </div>
       </div>
@@ -125,7 +125,7 @@ const isNewChat = computed(() => {
         v-if="isNewChat"
         class="flex-1 flex flex-col items-center justify-center px-4"
       >
-        <div class="text-gray-600 dark:text-gray-300 mb-4 text-gradient-gemini font-gemini-hello">Hello</div>
+        <div class="text-gray-600 dark:text-gray-300 mb-4 text-hello font-hello">Hello</div>
         <form @submit.prevent="envoieQuestion" class="w-full max-w-3xl">
           <div class="relative">
             <input
@@ -177,6 +177,7 @@ const isNewChat = computed(() => {
             type="text"
             placeholder="Ask Stella"
             class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+
           />
           <button
             type="submit"
