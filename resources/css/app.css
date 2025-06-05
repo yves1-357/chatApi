@@ -6,21 +6,21 @@
     display: none;
 }
 
-.text-gradient-gemini {
+.text-hello {
     background: linear-gradient(to right, #6d6eff, #8a2be2, #ff69b4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: #616161;
 }
 
-.dark .text-gradient-gemini {
+.dark .text-hello {
     background: linear-gradient(to right, #a0c4ff, #8e9bff, #c77dff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     color: #d1d1d1;
 }
 
-.font-gemini-hello {
+.font-hello {
     font-size: 3rem;
     font-weight: 500;
 }
