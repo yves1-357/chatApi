@@ -125,7 +125,7 @@ const isNewChat = computed(() => {
         v-if="isNewChat"
         class="flex-1 flex flex-col items-center justify-center px-4"
       >
-        <div class="text-gray-600 dark:text-gray-300 mb-4">Hello</div>
+        <div class="text-gray-600 dark:text-gray-300 mb-4 text-gradient-gemini font-gemini-hello">Hello</div>
         <form @submit.prevent="envoieQuestion" class="w-full max-w-3xl">
           <div class="relative">
             <input
