@@ -206,7 +206,7 @@ const isNewChat = computed(() => {
 <style>
 /* Optionnel : joli rendu pour les blocs de code */
 .prose pre {
-  background: #1b58d2 ;
+  background: #215ca8 ;
   color: #fff;
   border-radius: 8px;
   padding: 1em;
