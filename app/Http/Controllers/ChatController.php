@@ -11,7 +11,7 @@ class ChatController extends Controller
 {
     public function ask(Request $request){
         $question = $request->input('question');
-        $conversationId = $request->input('conversation_id');
+        $conversationId = $request->integer('conversation_id');
 
         //on cree une nouvel conversation si pas  conversation_id
 
@@ -43,14 +43,18 @@ class ChatController extends Controller
         ])->post('https://openrouter.ai/api/v1/chat/completions',[
             'model' =>'openai/gpt-3.5-turbo', //modele simple pour debuter
             'messages' => [
-                // instruction llm a voir plutard
+                // instruction llm
                 [
                     'role' => 'system',
-                    'content' => "Tu es Stella, un assistant amical et concis. réponds clairement en evitant les fautes. utilise un ton poli et écoute bien la question."
+                    'content' => implode("\n", [
+                        "Tu es Stella, une intelligence artificielle amicale et compétente, toujours prête à répondre de façon claire, utile et bienveillante, sur tous les sujets.",
+                        "Utilise du Markdown pour la mise en forme quand c'est pertinent (exemple, du code, des listes, des titres).",
+                        "Ajoute 1 à 2 emojis pour rendre tes réponses vivantes.",
+                        "Rédige en français, de façon claire, polie et sans fautes.",
+                    ]),
                 ],
-
                 //message user
-                ['role' => 'user', 'content' => $question]
+                ['role' => 'user', 'content' => $question,],
             ],
             'max_tokens' => 500,
         ]);
