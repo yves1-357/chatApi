@@ -28,14 +28,11 @@
   width: 0px;
   background: transparent;
 }
-
-
-
-/* Pour les divs spécifiques, par exemple .overflow-y-auto */
+/* Pour les divs spécifiques */
 .overflow-y-auto::-webkit-scrollbar {
   width: 0px !important;
-  background: transparent !important;
+  background: transparent;
 }
 .overflow-y-auto {
-  scrollbar-width: none !important;
+  scrollbar-width: none;
 }
