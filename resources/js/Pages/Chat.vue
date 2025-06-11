@@ -155,21 +155,25 @@ const isNewChat = computed(() => {
         <!-- Messages -->
         <div class="flex-1 overflow-y-auto px-4 py-6 w-full max-w-4xl mx-auto space-y-4">
           <div v-for="msg in messages" :key="msg.id" class="mb-4">
-            <div :class="msg.role === 'user' ? 'text-right' : 'text-left'">
+            <div class="flex w-full" :class="msg.role === 'user' ? 'justify-end' : 'justify-start' ">
+                <template v-if="msg.role === 'assistant'">
                 <div
-                v-if="msg.role === 'assistant'"
-                class="prose dark:prose-invert"
+                class="prose dark:prose-invert bg-transparent max-w-2xl w-full"
                 v-html="renderMarkdown(msg.content)">
               </div>
+              </template>
+              <template v-else>
+                <div class="max-w-2xl w-full flex justify-end">
               <span
-              v-else
                 :class="msg.role === 'user'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-300 dark:bg-gray-700 text-black dark:text-gray-100'"
-                class="inline-block px-4 py-2 rounded-lg max-w-xl break-words"
+                class="inline-block px-4 py-2 rounded-lg max-w-2xl break-words text-right"
               >
                 {{ msg.content }}
               </span>
+                </div>
+                </template>
             </div>
           </div>
         </div>
@@ -206,7 +210,7 @@ const isNewChat = computed(() => {
 <style>
 /* Optionnel : joli rendu pour les blocs de code */
 .prose pre {
-  background: #215ca8 ;
+  background: #364356 ;
   color: #fff;
   border-radius: 8px;
   padding: 1em;
