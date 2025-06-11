@@ -24,3 +24,18 @@
     font-size: 3rem;
     font-weight: 500;
 }
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+
+
+/* Pour les divs spécifiques, par exemple .overflow-y-auto */
+.overflow-y-auto::-webkit-scrollbar {
+  width: 0px !important;
+  background: transparent !important;
+}
+.overflow-y-auto {
+  scrollbar-width: none !important;
+}
