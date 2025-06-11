@@ -2,11 +2,12 @@
 import { ref, computed, onMounted } from 'vue'
 import Sidebar from '@/Components/Sidebar.vue'
 import axios from 'axios'
+import { marked} from 'marked'
 
 const question = ref('')
 const chargement = ref(false)
 const messages = ref([])
-
+const renderMarkdown = (md) => marked.parse(md || '')
 // id conversation en cours (null == new chat)
 const activeConversationId = ref(null)
 
@@ -99,6 +100,7 @@ const envoieQuestion = async () => {
 const isNewChat = computed(() => {
   return activeConversationId.value === null && messages.value.length === 0
 })
+
 </script>
 
 <template>
@@ -154,7 +156,13 @@ const isNewChat = computed(() => {
         <div class="flex-1 overflow-y-auto px-4 py-6 w-full max-w-4xl mx-auto space-y-4">
           <div v-for="msg in messages" :key="msg.id" class="mb-4">
             <div :class="msg.role === 'user' ? 'text-right' : 'text-left'">
+                <div
+                v-if="msg.role === 'assistant'"
+                class="prose dark:prose-invert"
+                v-html="renderMarkdown(msg.content)">
+              </div>
               <span
+              v-else
                 :class="msg.role === 'user'
                   ? 'bg-blue-500 text-white'
                   : 'bg-gray-300 dark:bg-gray-700 text-black dark:text-gray-100'"
@@ -196,5 +204,16 @@ const isNewChat = computed(() => {
 </template>
 
 <style>
-
+/* Optionnel : joli rendu pour les blocs de code */
+.prose pre {
+  background: #1b58d2 ;
+  color: #fff;
+  border-radius: 8px;
+  padding: 1em;
+  margin: 1em 0;
+  font-size: 1rem;
+}
+.prose {
+  background: transparent ;
+}
 </style>
