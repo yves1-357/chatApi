@@ -181,8 +181,22 @@ const isNewChat = computed(() => {
         <!-- écriture collé en bas -->
         <form
           @submit.prevent="envoieQuestion"
-          class="p-4  flex space-x-2 px-4 py-6 w-full max-w-4xl mx-auto space-y-4"
+          class="p-4  flex items-center space-x-2 px-4 py-2 w-full max-w-4xl mx-auto "
         >
+
+        <label for="imageUpload"
+
+
+        class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50 focus:outline-none flex-shrink-0"
+
+        >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+  <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v6m3-3H9m12 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+</svg>
+
+
+ <input type="file" id="imageUpload" @change="handleImageUpload" accept="image/*" class="hidden" />
+</label>
 
           <input
             v-model="question"
@@ -191,15 +205,17 @@ const isNewChat = computed(() => {
             class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
 
           />
+
           <button
             type="submit"
-            :disabled="chargement || !question"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50 focus:outline-none"
+            :disabled="chargement ||  (!question && !imageUpload)"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50 focus:outline-none flex-shrink-0"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 12 3.269 3.125A59.769 59.769 0 0 1 21.485 12 59.768 59.768 0 0 1 3.27 20.875L5.999 12Zm0 0h7.5" />
             </svg>
           </button>
+
 
         </form>
       </div>
