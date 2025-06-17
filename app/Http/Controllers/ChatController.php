@@ -36,12 +36,13 @@ class ChatController extends Controller
 
         //app openrouter à activer plus tard ======
 
+        $model = $request->input('model', 'openai/gpt-3.5-turbo');
         $reponse = Http::withHeaders([
             'Authorization' => 'Bearer ' . env  ('OPENROUTER_API_KEY'),
             'HTTP-Referer' => 'https://localhost',
             'OpenAI-Referer' => 'https://localhost',
         ])->post('https://openrouter.ai/api/v1/chat/completions',[
-            'model' =>'openai/gpt-3.5-turbo', //modele simple pour debuter
+            'model' => $model, //modele simple pour debuter
             'messages' => [
                 // instruction llm
                 [
