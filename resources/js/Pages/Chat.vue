@@ -67,7 +67,8 @@ const envoieQuestion = async () => {
   try {
     const res = await axios.post('/api/chat', {
       question: question.value,
-      conversation_id: activeConversationId.value
+      conversation_id: activeConversationId.value,
+      model:selectedModel.id,
     })
 
     // nouvelle conversation, on récupère id et recharge historique
@@ -101,6 +102,30 @@ const isNewChat = computed(() => {
   return activeConversationId.value === null && messages.value.length === 0
 })
 
+
+// choix modeles
+
+const models = [
+  { id: 'openai/gpt-3.5-turbo', name: 'GPT-3.5' },
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
+  { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
+   { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5' },
+   {  id: 'anthropic/claude-3-sonnet', name: 'Claude 3 Vision'},
+  { id: 'deepseek/deepseek-chat-v3-0324:free', name: 'DeepSeek V3'},
+  { id: 'moonshotai/kimi-vl-a3b-thinking:free', name: 'Kimi Vision'},
+   { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B'},
+  { id: 'meta-llama/llama-3-8b-instruct', name: 'Llama 3' },
+
+]
+
+let selectedModel = models[0] //par defaut gpt3.5
+const showModelMenu = ref(false)
+
+//changement de modeles
+const selectModel = (model) => {
+    selectedModel = model
+    showModelMenu.value = false
+}
 </script>
 
 <template>
@@ -118,7 +143,41 @@ const isNewChat = computed(() => {
       <div v-if="isNewChat" class=" text-white py-4">
         <div class="max-w-1xl mx-auto px-2 flex items-center justify-left">
           <span class="text-xl font-bold">Stella</span>
-          <span class="ml-2 text-s">&#x25B6;</span>
+          <span
+               class="ml-2 text-s cursor-pointer"
+               @click="showModelMenu = !showModelMenu">
+
+               <!-- affiche model ou x -->
+                <template v-if="!showModelMenu">
+                    <span v-if="selectModel"class="ml-2 px-2 py-1 rounded bg-gray-800 text-white text-sm">{{ selectedModel.name }}
+                        </span>
+
+                </template>
+                <template v-else >
+                    <!-- icone pour fermer -->
+                     <span>&#x2715;</span>
+                </template>
+
+            </span>
+            <!-- menu dropdown -->
+             <div
+             v-if="showModelMenu"
+             class="absolute z-50 mt-12 left-0 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 rounded shadow-xl w-48"
+             style="top: 1.5rem;"
+             >
+             <ul>
+                <li
+                   v-for="model in models"
+                   :key="model.id"
+                   @click="selectModel(model)"
+                   class="px-4 py-2 hover:bg-blue-100 dark:hover:bg-gray-700 cursor-pointer"
+                   :class="{'font-bold text-blue-600': model.id ===  selectedModel?.id}"
+                   >
+                   {{ model.name }}
+                </li>
+             </ul>
+            </div>
+
         </div>
       </div>
 
