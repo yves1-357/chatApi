@@ -8,135 +8,130 @@ use App\Models\Conversation;
 use App\Models\Message;
 use GuzzleHttp\Client;
 
-class ChatController extends Controller
+class ChatController extends Controller{
+    public function ask(Request $request)
 {
-    public function ask(Request $request){
-        $question = $request->input('question');
-        $conversationId = $request->integer('conversation_id');
+    $question = $request->input('question');
+    $conversationId = $request->integer('conversation_id');
 
-        //on cree une nouvel conversation si pas  conversation_id
+    // crée ou récupère la conversation
+    if (! $conversationId) {
+        $title = substr($question, 0, 40);
+        $conversation = Conversation::create(['title' => $title]);
+    } else {
+        $conversation = Conversation::find($conversationId);
+    }
 
-        if(!$conversationId){
-            $title = substr($question, 0, 40); // titre::1ere caractere du question
-            $conversation = Conversation::create(['title' => $title]);
-        } else {
-            $conversation = Conversation::find($conversationId);
-        }
+    //ic sa detecte si c'est une toute nouvelle conversation
+    $isNew = ! $conversationId;
 
-        // ce-ci détecte si c'était une nouvelle conversation
-          $isNew = !$conversationId;
-
-
-        //enregistrer msg vide
-        if(empty($question)){
-            $question ="message vide";
-        }
-
-        //enregistrer msg user
-        Message::create([
-            'conversation_id' => $conversation->id,
-            'role' => 'user',
-            'content' =>  $question,
-        ]);
-
-        //guzzle pour streaming
-
-        $model = $request->input('model', 'openai/gpt-3.5-turbo');
-        $client = new Client();
-
-        $payload = [
-            'model' => $model,
-            'messages' => [
-                // instruction
-                [
-                    'role' => 'system',
-                    'content' => implode("\n", [
-                        "Tu es Stella, une intelligence artificielle amicale. Réponds clairement avec plusieurs explications, sans fautes d'orthographe, en français.
-                        Utilise du Markdown uniquement pour les exemples de code. et ajouter 1 à 3 emojis",
-                    ]),
-                ],
-                //message user
-                ['role' => 'user', 'content' => $question,],
-            ],
-            'max_tokens' => 500,
-            'stream' => true, // activation du streaming
-        ];
-        $headers = [
-            'Authorization' => 'Bearer ' . env  ('OPENROUTER_API_KEY'),
-            'HTTP-Referer' => 'https://localhost',
-            'OpenAI-Referer' => 'https://localhost',
-            'Accept' => 'text/event-stream',
-            'Content-Type' => 'application/json',
-        ];
-        return response()->stream(function () use ($client, $headers, $payload, $conversation, $isNew){
-            $response = $client->post('https://openrouter.ai/api/v1/chat/completions',
-            [
-                'headers' => $headers,
-                'json' => $payload,
-                'stream' => true,
-            ]);
-
-            $body = $response->getBody();
-
-            $text='';
-            $buffer ='';
-            while(!$body->eof()){
-                $chunk =$body->read(1024);
-                $buffer .= $chunk;
-                while(($pos = strpos($buffer, "\n")) !== false){
-        $line = substr($buffer, 0, $pos);
-        $buffer = substr($buffer, $pos+1);
-                    $line = trim($line);
-
-                    if(str_starts_with($line, 'data:')){
-                        $data = trim(substr($line, 5));
-                        if($data === '[DONE]') {break 2;}
-
-                        if($data){
-                        $json = json_decode($data, true);
-                        if(isset($json['choices'][0]['delta']['content']))
-                        {
-                            $partial = $json['choices'][0]['delta']['content'];
-                               $text .= $partial;
-                                echo "data: " . json_encode(['content' => $partial]) . "\n\n";;
-                                @ob_flush();
-                                @flush();
-                        }
-                    }
-
-                }
-            }
-        }
-
-        echo "\ndata: " . json_encode([
-        "is_new" => $isNew,
-        "conversation_id" => $conversation->id,
-        ]) . "\n\n";
-        @ob_flush();
-        @flush();
-
-
-        /*
-        $answer = "Réponse automatique stella.";
-
-        //:jamais enregistrer un msg vide(securite)
-        if (empty($answer)) {
-            $answer = "Pas de réponse.";
-        }
-
-        */
-        //enregistrer reponse ia
-         Message::create([
-            'conversation_id' => $conversation->id,
-            'role' => 'assistant',
-            'content' => $text,
-        ]);
-    }, 200 , [
-         'Content-Type' => 'text/event-stream',
-            'Cache-Control' => 'no-cache',
-            'X-Accel-Buffering' => 'no'
+    // enregistre tout de suite le message user en base
+    Message::create([
+        'conversation_id' => $conversation->id,
+        'role'            => 'user',
+        'content'         => $question,
     ]);
 
+    // ici on prépare l’historique complet pour le contexte suivies
+    $history = Message::where('conversation_id', $conversation->id)
+        ->orderBy('created_at')
+        ->get(['role','content'])
+        ->map(fn($m) => [
+            'role'    => $m->role,
+            'content' => $m->content,
+        ])->toArray();
 
+    // prompt système
+    $system = [
+        'role'    => 'system',
+        'content' => implode("\n", [
+            "Tu es Stella, une IA amicale et compétente.",
+            "Réponds clairement avec plusieurs explications, sans fautes, en français.",
+            "Utilise du Markdown pour les exemples de code.",
+            "Ajoute 1 à 3 emojis pour rendre tes réponses vivantes.",
+        ]),
+    ];
+
+    // ici on fusionne prompt + historique + nouvelle question
+    $messagesPayload = array_merge(
+        [ $system ],
+        $history,
+        [ ['role'=>'user','content'=> $question] ]
+    );
+
+    // payload streaming
+    $model   = $request->input('model', 'openai/gpt-3.5-turbo');
+    $payload = [
+        'model'      => $model,
+        'messages'   => $messagesPayload,
+        'max_tokens' => 500,
+        'stream'     => true,
+    ];
+    $headers = [
+        'Authorization'  => 'Bearer ' . env('OPENROUTER_API_KEY'),
+        'Accept'         => 'text/event-stream',
+        'Content-Type'   => 'application/json',
+        'HTTP-Referer'   => 'https://localhost',
+        'OpenAI-Referer' => 'https://localhost',
+    ];
+
+    $client = new Client();
+
+    // retourne un stream SSE
+    return response()->stream(
+        function () use ($client, $headers, $payload, $conversation, $isNew) {
+            $resp = $client->post(
+                'https://openrouter.ai/api/v1/chat/completions',
+                ['headers'=>$headers,'json'=>$payload,'stream'=>true]
+            );
+            $body   = $resp->getBody();
+            $text   = '';
+            $buffer = '';
+
+            while (! $body->eof()) {
+                $buffer .= $body->read(1024);
+                while (false !== ($pos = strpos($buffer, "\n"))) {
+                    $line   = trim(substr($buffer, 0, $pos));
+                    $buffer = substr($buffer, $pos + 1);
+
+                    if (! str_starts_with($line, 'data:')) {
+                        continue;
+                    }
+                    $data = trim(substr($line, 5));
+                    if ($data === '[DONE]') {
+                        break 2;
+                    }
+                    $json = json_decode($data, true);
+                    $partial = $json['choices'][0]['delta']['content'] ?? null;
+                    if ($partial) {
+                        $text .= $partial;
+                        echo "data: " . json_encode(['content'=>$partial]) . "\n\n";
+                        @ob_flush(); @flush();
+                    }
+                }
+            }
+
+            // envoie  flag is_new pour le front
+            echo "data: " . json_encode([
+                'is_new'          => $isNew,
+                'conversation_id' => $conversation->id,
+            ]) . "\n\n";
+            @ob_flush(); @flush();
+
+            // stocke la réponse complète en base
+            Message::create([
+                'conversation_id' => $conversation->id,
+                'role'            => 'assistant',
+                'content'         => $text,
+            ]);
+        },
+        200,
+        [
+            'Content-Type'      => 'text/event-stream',
+            'Cache-Control'     => 'no-cache',
+            'X-Accel-Buffering' => 'no',
+        ]
+    );
 }
+
 }
