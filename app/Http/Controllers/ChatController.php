@@ -32,6 +32,32 @@ class ChatController extends Controller{
         'content'         => $question,
     ]);
 
+    //appel api pour generer un titre
+    $titlePrompt = "Tu es générateur de titre de conversation."
+                    ."À partir de cette question : « {$question} », "
+                    ."propose un titre très court (1 à 4 mots max) qui décrit le sujet., **sans guillemets ni ponctuation superflue**.";
+    $titleResponse = http::withHeaders([
+        'Authorization'   => 'Bearer ' . env('OPENROUTER_API_KEY'),
+        'OpenAI-Referer'  => 'https://localhost',
+    ])->post('https://openrouter.ai/api/v1/chat/completions',[
+        'model' => 'openai/gpt-3.5-turbo',
+        'messages' => [
+             ['role' => 'system',  'content' => $titlePrompt],
+             ['role' => 'user',    'content' => $question],
+        ],
+        'max_tokens' =>16,
+        'temperature' => 0.7,
+    ]);
+
+    if($titleResponse->successful()){
+        $j = $titleResponse->json();
+        $generatedTitle = Trim($j['choices'][0]['message']['content'] ?? '');
+        if($generatedTitle !==''){
+            $conversation->update(['title' => $generatedTitle]);
+        }
+    }
+
+
     // ici on prépare l’historique complet pour le contexte suivies
     $history = Message::where('conversation_id', $conversation->id)
         ->orderBy('created_at')
