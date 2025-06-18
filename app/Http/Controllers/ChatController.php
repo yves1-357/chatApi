@@ -35,7 +35,9 @@ class ChatController extends Controller{
     // ici on prépare l’historique complet pour le contexte suivies
     $history = Message::where('conversation_id', $conversation->id)
         ->orderBy('created_at')
+        ->take(10)
         ->get(['role','content'])
+        ->reverse() // mettre plus ancien au recent
         ->map(fn($m) => [
             'role'    => $m->role,
             'content' => $m->content,
