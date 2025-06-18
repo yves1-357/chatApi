@@ -13,6 +13,12 @@
       >
         New chat
       </button>
+      <button
+        @click="openInstructions"
+        class="mt-4 px-4 py-2 bg-blue-600 rounded hover:"
+      >
+        Instructions
+      </button>
     </div>
 
     <!-- historique -->
@@ -84,11 +90,16 @@ const props = defineProps({
 })
 
 // -- definit les 2 events qu'on peut emettre
-const emit = defineEmits(['select-conversation', 'new-chat'])
+const emit = defineEmits(['select-conversation', 'new-chat', 'instructions'])
 
 //-- bouton “new chat” : on remet à zéro
 const newChat = () => {
   emit('new-chat')
+}
+
+// Instructions
+const openInstructions = () => {
+    emit('instructions')
 }
 
 //-- clic sur une conversation => on émet son ID
