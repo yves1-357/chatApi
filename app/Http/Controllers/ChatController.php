@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Conversation;
 use App\Models\Message;
+use GuzzleHttp\Client;
 
 class ChatController extends Controller
 {
@@ -22,6 +23,10 @@ class ChatController extends Controller
             $conversation = Conversation::find($conversationId);
         }
 
+        // ce-ci détecte si c'était une nouvelle conversation
+          $isNew = !$conversationId;
+
+
         //enregistrer msg vide
         if(empty($question)){
             $question ="message vide";
@@ -34,39 +39,81 @@ class ChatController extends Controller
             'content' =>  $question,
         ]);
 
-        //app openrouter à activer plus tard ======
+        //guzzle pour streaming
 
         $model = $request->input('model', 'openai/gpt-3.5-turbo');
-        $reponse = Http::withHeaders([
-            'Authorization' => 'Bearer ' . env  ('OPENROUTER_API_KEY'),
-            'HTTP-Referer' => 'https://localhost',
-            'OpenAI-Referer' => 'https://localhost',
-        ])->post('https://openrouter.ai/api/v1/chat/completions',[
-            'model' => $model, //modele simple pour debuter
+        $client = new Client();
+
+        $payload = [
+            'model' => $model,
             'messages' => [
-                // instruction llm
+                // instruction
                 [
                     'role' => 'system',
                     'content' => implode("\n", [
-                        "Tu es Stella, une intelligence artificielle amicale et compétente, toujours prête à répondre de façon claire, utile et bienveillante, sur tous les sujets.",
-                        "Utilise du Markdown pour la mise en forme quand c'est pertinent (exemple, du code, des listes, des titres).",
-                        "Ajoute 1 à 2 emojis pour rendre tes réponses vivantes.",
-                        "Rédige en français, de façon claire, polie et sans fautes.",
+                        "Tu es Stella, une intelligence artificielle amicale. Réponds clairement avec plusieurs explications, sans fautes d'orthographe, en français.
+                        Utilise du Markdown uniquement pour les exemples de code. et ajouter 1 à 3 emojis",
                     ]),
                 ],
                 //message user
                 ['role' => 'user', 'content' => $question,],
             ],
             'max_tokens' => 500,
-        ]);
+            'stream' => true, // activation du streaming
+        ];
+        $headers = [
+            'Authorization' => 'Bearer ' . env  ('OPENROUTER_API_KEY'),
+            'HTTP-Referer' => 'https://localhost',
+            'OpenAI-Referer' => 'https://localhost',
+            'Accept' => 'text/event-stream',
+            'Content-Type' => 'application/json',
+        ];
+        return response()->stream(function () use ($client, $headers, $payload, $conversation, $isNew){
+            $response = $client->post('https://openrouter.ai/api/v1/chat/completions',
+            [
+                'headers' => $headers,
+                'json' => $payload,
+                'stream' => true,
+            ]);
 
-        if($reponse->successful()){
-            $data = $reponse->json();
-            //on prend le texte donné ou genere
-            $answer = $data['choices'][0]['message']['content'] ?? "Pas de reponse.";
-        } else {
-            $answer = "Erreur Api :" . $reponse->body();
+            $body = $response->getBody();
+
+            $text='';
+            $buffer ='';
+            while(!$body->eof()){
+                $chunk =$body->read(1024);
+                $buffer .= $chunk;
+                while(($pos = strpos($buffer, "\n")) !== false){
+        $line = substr($buffer, 0, $pos);
+        $buffer = substr($buffer, $pos+1);
+                    $line = trim($line);
+
+                    if(str_starts_with($line, 'data:')){
+                        $data = trim(substr($line, 5));
+                        if($data === '[DONE]') {break 2;}
+
+                        if($data){
+                        $json = json_decode($data, true);
+                        if(isset($json['choices'][0]['delta']['content']))
+                        {
+                            $partial = $json['choices'][0]['delta']['content'];
+                               $text .= $partial;
+                                echo "data: " . json_encode(['content' => $partial]) . "\n\n";;
+                                @ob_flush();
+                                @flush();
+                        }
+                    }
+
+                }
+            }
         }
+
+        echo "\ndata: " . json_encode([
+        "is_new" => $isNew,
+        "conversation_id" => $conversation->id,
+        ]) . "\n\n";
+        @ob_flush();
+        @flush();
 
 
         /*
@@ -82,14 +129,14 @@ class ChatController extends Controller
          Message::create([
             'conversation_id' => $conversation->id,
             'role' => 'assistant',
-            'content' => $answer,
+            'content' => $text,
         ]);
+    }, 200 , [
+         'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no'
+    ]);
 
 
-        return response()->json([
-            'answer' => $answer,
-            'conversation_id' => $conversation->id,
-        ]);
-
-    }
+}
 }
