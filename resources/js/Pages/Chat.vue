@@ -9,6 +9,7 @@ const chargement = ref(false)
 const messages = ref([])
 const renderMarkdown = (md) => marked.parse(md || '')
 const messagesContainer = ref(null)
+
 // id conversation en cours (null == new chat)
 const activeConversationId = ref(null)
 
@@ -53,6 +54,25 @@ const onNewChat = () => {
   question.value = ''
 }
 
+
+// modal instructions
+
+const showInstructionsModal = ref(false)
+const customInstructions  = ref('')
+
+function openInstructions(){
+    showInstructionsModal.value = true
+}
+
+function saveInstructions() {
+
+    // a envoyer plus tard au back end
+    showInstructionsModal.value = false
+
+    // repart sur new chat
+    onNewChat()
+}
+
 /************************************************************************** */
 
 const envoieQuestion = async () => {
@@ -87,6 +107,7 @@ const envoieQuestion = async () => {
         question: question.value,
         conversation_id: activeConversationId.value,
         model: selectedModel.id,
+        instructions: customInstructions.value,
       })
     })
 
@@ -195,6 +216,7 @@ const selectModel = (model) => {
       :activeConversationId="activeConversationId"
       @select-conversation="onSelectConversation"
       @new-chat="onNewChat"
+      @instructions="openInstructions"
     />
 
     <!-- zone centrale chat -->
@@ -348,6 +370,40 @@ const selectModel = (model) => {
         </form>
       </div>
     </main>
+
+    <!-- MODAL Instructions -->
+    <div
+      v-if="showInstructionsModal"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div class="bg-white dark:bg-gray-800 rounded-lg w-11/12 max-w-lg p-6">
+        <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">
+          Instructions personnalisées
+        </h2>
+        <textarea
+          v-model="customInstructions"
+          rows="5"
+          class="w-full bg-gray-700 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+        ></textarea>
+        <div class="mt-4 flex justify-end space-x-2">
+          <button
+          v-if="customInstructions"
+            type="button"
+            @click="customInstructions = ''"
+            class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            @click="saveInstructions"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-600 text-white rounded"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
