@@ -270,7 +270,7 @@ const selectModel = (model) => {
 
       <!-- conversation existante (messages.length > 0), affiche la liste des messages + champ collé en bas -->
       <div v-else class="flex-1 flex flex-col h-full">
-        <!-- Messages -->
+        <!-- Messages + loader-->
         <div ref="messagesContainer"
         class="flex-1 overflow-y-auto px-4 py-6 w-full max-w-4xl mx-auto space-y-4">
           <div v-for="msg in messages" :key="msg.id" class="mb-4">
@@ -290,6 +290,7 @@ const selectModel = (model) => {
                 class="inline-block px-4 py-2 rounded-lg max-w-2xl break-words text-right"
               >
                 {{ msg.content }}
+
               </span>
                 </div>
                 </template>
@@ -297,6 +298,20 @@ const selectModel = (model) => {
           </div>
         </div>
 
+           <!-- loader svg animé -->
+  <div v-if="chargement" class="flex w-full justify-start mb-4">
+    <span
+      class="flex items-center px-4 py-2 w-full max-w-4xl mx-auto"
+      style="min-width:3rem; min-height:1.5rem;">
+       <svg height="24px" width="24px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round">
+ </g><g id="SVGRepo_iconCarrier"> <path style="fill:#2D50A7;" d="M116.364,221.091H23.273C10.42,221.091,0,231.511,0,244.364c0,12.853,10.42,23.273,23.273,23.273 h93.091c12.853,0,23.273-10.42,23.273-23.273C139.636,231.511,129.216,221.091,116.364,221.091z"></path> <path style="fill:#73A1FB;" d="M488.727,221.091h-93.091c-12.853,0-23.273,10.42-23.273,23.273c0,12.853,10.42,23.273,23.273,23.273 h93.091c12.853,0,23.273-10.42,23.273-23.273C512,231.511,501.58,221.091,488.727,221.091z">
+ </path> <path style="fill:#355EC9;" d="M140.805,326.645L74.98,392.471c-9.089,9.089-9.089,23.823,0,32.912 c4.544,4.544,10.501,6.816,16.457,6.816s11.913-2.273,16.455-6.816l65.825-65.826c9.089-9.089,9.089-23.824,0-32.912 S149.892,317.556,140.805,326.645z"></path> <g> <path style="fill:#C4D9FD;" d="M256,11.636c-12.853,0-23.273,10.42-23.273,23.273v46.545c0,12.853,10.42,23.273,23.273,23.273 c12.853,0,23.273-10.42,23.273-23.273V34.909C279.273,22.056,268.853,11.636,256,11.636z">
+ </path> <path style="fill:#C4D9FD;" d="M404.105,63.344L338.28,129.17c-9.089,9.089-9.089,23.824,0,32.912 c4.544,4.544,10.501,6.817,16.457,6.817s11.913-2.273,16.455-6.817l65.825-65.826c9.089-9.089,9.089-23.824,0-32.912 C427.93,54.255,413.192,54.255,404.105,63.344z"></path> </g> <path style="fill:#3D6DEB;" d="M256,360.727c-12.853,0-23.273,10.42-23.273,23.273v93.091c0,12.853,10.42,23.273,23.273,23.273 c12.853,0,23.273-10.42,23.273-23.273V384C279.273,371.147,268.853,360.727,256,360.727z">
+ </path> <path style="fill:#5286FA;" d="M371.192,326.645c-9.086-9.089-23.824-9.089-32.912,0c-9.089,9.087-9.089,23.824,0,32.912 l65.825,65.826c4.544,4.544,10.501,6.816,16.457,6.816c5.955,0,11.913-2.273,16.455-6.816c9.089-9.089,9.089-23.824,0-32.912 L371.192,326.645z"></path>
+</g>
+</svg>
+    </span>
+</div>
         <!-- écriture collé en bas -->
         <form
           @submit.prevent="envoieQuestion"
