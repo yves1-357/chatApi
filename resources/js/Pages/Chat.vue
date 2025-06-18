@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import Sidebar from '@/Components/Sidebar.vue'
 import axios from 'axios'
 import { marked} from 'marked'
@@ -8,6 +8,7 @@ const question = ref('')
 const chargement = ref(false)
 const messages = ref([])
 const renderMarkdown = (md) => marked.parse(md || '')
+const messagesContainer = ref(null)
 // id conversation en cours (null == new chat)
 const activeConversationId = ref(null)
 
@@ -52,50 +53,108 @@ const onNewChat = () => {
   question.value = ''
 }
 
-/** question envoyé à laravel **/
+/************************************************************************** */
+
 const envoieQuestion = async () => {
   if (!question.value.trim()) return
 
   chargement.value = true
 
-  // montre le message user
+  // 1/ Affiche immédiatement le message utilisateur
   messages.value.push({
     id: Date.now(),
     role: 'user',
     content: question.value
   })
+    await nextTick()
+    const c = messagesContainer.value
+    if (c) c.scrollTop = c.scrollHeight
+
+  // 2/ Prépare un message assistant “vide” qui sera rempli en streaming
+  const iaMsg = {
+    id: Date.now() + 1,
+    role: 'assistant',
+    content: ''
+  }
+  messages.value.push(iaMsg)
+
   try {
-    const res = await axios.post('/api/chat', {
-      question: question.value,
-      conversation_id: activeConversationId.value,
-      model:selectedModel.id,
+    // 3/ Lance la requête en streaming
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: question.value,
+        conversation_id: activeConversationId.value,
+        model: selectedModel.id,
+      })
     })
 
-    // nouvelle conversation, on récupère id et recharge historique
-    if (res.data.conversation_id) {
-      activeConversationId.value = res.data.conversation_id
-      await loadConversations()
+    const reader = res.body.getReader()
+    const decoder = new TextDecoder()
+    let done = false, value
+    let lastChar = ''  // pour réparer les morceaux de mot collés
+
+    // 4/ Lecture du flux SSE
+    while (true) {
+      ({done, value} = await reader.read())
+      if (done) break
+
+      const chunk = decoder.decode(value)
+      // on parcourt chaque ligne « data: {...} »
+      for (const rawLine of chunk.split('\n')) {
+        const line = rawLine.trim()
+        if (!rawLine.startsWith('data:')) continue
+
+        const dataStr = rawLine.slice(5)
+        if (!dataStr || dataStr.trim() === '[DONE]') continue
+
+        let parsed
+        try {
+          parsed = JSON.parse(dataStr)
+        } catch {
+          continue  // JSON invalide, on passe à la ligne suivante
+        }
+
+        // 5/ Partie réponse IA (delta content ou content)
+        let fragment = parsed.choices?.[0]?.delta?.content
+        if (!fragment && parsed.content) {
+          fragment = parsed.content
+        }
+        if (fragment) {
+
+             iaMsg.content += fragment
+    messages.value = [...messages.value]
+    await nextTick()
+if (messagesContainer.value) {
+  messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
+}
+        }
+        // 6/ Partie signal “is_new”
+        if (parsed.is_new) {
+          await loadConversations()
+          activeConversationId.value = parsed.conversation_id
+        }
+      }
     }
 
-    // réponse ia “Stella”  bientot ou ia réelle
-    messages.value.push({
-      id: Date.now() + 1,
-      role: 'assistant',
-      content: res.data.answer
-    })
-
+    // 7/ Réinitialise la zone de saisie
     question.value = ''
   } catch (error) {
-    console.error(error)
-    messages.value.push({
-      id: Date.now() + 2,
-      role: 'assistant',
-      content: 'Erreur de requête'
-    })
+    console.error('Streaming fetch error:', error)
+    // N’écrase la réponse IA que si elle est encore vide
+    if (!iaMsg.content) {
+      iaMsg.content = 'Erreur de requête'
+      messages.value = [...messages.value]
+    }
+  } finally {
+    chargement.value = false
   }
-
-  chargement.value = false
 }
+
+
+/************************************************************************* */
+
 
 /** computed pour savoir si on est en “newchat” => pas de msg à enregistré **/
 const isNewChat = computed(() => {
@@ -212,7 +271,8 @@ const selectModel = (model) => {
       <!-- conversation existante (messages.length > 0), affiche la liste des messages + champ collé en bas -->
       <div v-else class="flex-1 flex flex-col h-full">
         <!-- Messages -->
-        <div class="flex-1 overflow-y-auto px-4 py-6 w-full max-w-4xl mx-auto space-y-4">
+        <div ref="messagesContainer"
+        class="flex-1 overflow-y-auto px-4 py-6 w-full max-w-4xl mx-auto space-y-4">
           <div v-for="msg in messages" :key="msg.id" class="mb-4">
             <div class="flex w-full" :class="msg.role === 'user' ? 'justify-end' : 'justify-start' ">
                 <template v-if="msg.role === 'assistant'">
