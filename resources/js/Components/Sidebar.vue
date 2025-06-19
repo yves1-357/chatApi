@@ -7,7 +7,7 @@
     </g></svg>
 </span>
 
-      <button
+      <button dusk="new-chat-button"
         @click="newChat"
         class="mt-4 px-4 py-2 bg-blue-600 rounded hover:"
       >
