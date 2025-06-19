@@ -225,6 +225,7 @@ const selectModel = (model) => {
         <div class="max-w-1xl mx-auto px-2 flex items-center justify-left">
           <span class="text-xl font-bold">Stella</span>
           <span
+               dusk="model-selector"
                class="ml-2 text-s cursor-pointer"
                @click="showModelMenu = !showModelMenu">
 
@@ -250,6 +251,7 @@ const selectModel = (model) => {
                 <li
                    v-for="model in models"
                    :key="model.id"
+                   :dusk="`model-${model.id.replace(/[/.]/g, '-')}`"
                    @click="selectModel(model)"
                    class="px-4 py-2 hover:bg-blue-100 dark:hover:bg-gray-700 cursor-pointer"
                    :class="{'font-bold text-blue-600': model.id ===  selectedModel?.id}"
@@ -271,12 +273,14 @@ const selectModel = (model) => {
         <form @submit.prevent="envoieQuestion" class="w-full max-w-3xl">
           <div class="relative">
             <input
+              dusk="chat-input"
               v-model="question"
               type="text"
               placeholder="Ask Stella"
               class="w-full bg-gray-800 dark:bg-gray-700 text-white placeholder-gray-400 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button
+             dusk="send-button"
               type="submit"
               :disabled="!question.trim()"
               class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded disabled:opacity-50 focus:outline-none"
