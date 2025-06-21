@@ -10,4 +10,9 @@ class Conversation extends Model
     use HasFactory;
 
     protected $fillable = ['title'];
+
+    /** conversation peut avoir +messages */
+    public function messages(){
+        return$this->hasMany(Message::class);
+    }
 }
