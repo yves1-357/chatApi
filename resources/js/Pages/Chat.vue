@@ -186,7 +186,6 @@ const isNewChat = computed(() => {
 // choix modeles
 
 const models = [
-  { id: 'openai/gpt-3.5-turbo', name: 'GPT-3.5' },
   { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
   { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
    { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5' },
@@ -200,7 +199,7 @@ const models = [
 
 ]
 
-let selectedModel = models[0] //par defaut gpt3.5
+let selectedModel = models[0] //par defaut gpt-4o
 const showModelMenu = ref(false)
 
 //changement de modeles

@@ -21,6 +21,7 @@ class ChatController extends Controller{
     }
     Log::info('custom instructions reçues :', ['instructions' => $customInstructions]);
 
+    $generatedTitle = '';
     // crée ou récupère la conversation
     if (! $conversationId) {
         //generer un titre
@@ -33,7 +34,7 @@ class ChatController extends Controller{
                 'Authorization'  => 'Bearer ' . env('OPENROUTER_API_KEY'),
                 'OpenAI-Referer' => 'https://localhost',
             ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                'model'       => 'openai/gpt-3.5-turbo',
+                'model'       => 'openai/gpt-4o-mini',
                 'messages'    => [
                     ['role' => 'system', 'content' => $titlePrompt],
                     ['role' => 'user',   'content' => $question],
@@ -45,6 +46,10 @@ class ChatController extends Controller{
             if ($titleResponse->successful()) {
                 $payload        = $titleResponse->json();
                 $generatedTitle = trim($payload['choices'][0]['message']['content'] ?? '');
+
+                // nettoie tous les guillemets  + espaces invisibles
+                $generatedTitle = preg_replace('/[\"\'“”‘’«»]/u', '', $generatedTitle); // supprime les guillemets
+
             }
             // retour sur le début de la question si titre vide
             $conversationTitle = $generatedTitle !== '' ? $generatedTitle : substr($question, 0, 40);
@@ -100,7 +105,7 @@ class ChatController extends Controller{
     );
 
     // payload streaming
-    $model   = $request->input('model', 'openai/gpt-3.5-turbo');
+    $model   = $request->input('model', 'openai/gpt-4o-mini');
     $payload = [
         'model'      => $model,
         'messages'   => $messagesPayload,
@@ -127,8 +132,8 @@ class ChatController extends Controller{
                 ['headers'=>$headers,'json'=>$payload,'stream'=>true]
             );
             } catch (\GuzzleHttp\Exception\ClientException $e) {
-                    Log::warning('Modèle échoué : ' . $payload['model'] . ' -> Tentative avec modèle de secours.: openai/gpt-4o-mini');
-                    $payload['model'] = 'openai/gpt-4o-mini';
+                    Log::warning('Modèle échoué : ' . $payload['model'] . ' -> Tentative avec modèle de secours.: google/gemini-pro-1.5');
+                    $payload['model'] = 'google/gemini-pro-1.5';
                     $resp = $client->post('https://openrouter.ai/api/v1/chat/completions', [
                         'headers' => $headers,
                         'json'    => $payload,
