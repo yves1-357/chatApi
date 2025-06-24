@@ -159,7 +159,7 @@ if (messagesContainer.value) {
       }
     }
 
-    // 7/ Réinitialise la zone de saisie
+    // 7/ Réinitialise la zone de saisie apres envoie question
     question.value = ''
   } catch (error) {
     console.error('Streaming fetch error:', error)
@@ -196,6 +196,8 @@ const models = [
    { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B'},
   { id: 'meta-llama/llama-3-8b-instruct', name: 'Llama 3' },
 
+  //****  a rajouter plus de modeles plutard s'il le faut****
+
 ]
 
 let selectedModel = models[0] //par defaut gpt3.5
@@ -208,8 +210,10 @@ const selectModel = (model) => {
 }
 </script>
 
+
 <template>
   <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+
     <!-- sidebar + event -->
     <Sidebar
       :conversations="conversations"
@@ -241,7 +245,7 @@ const selectModel = (model) => {
                 </template>
 
             </span>
-            <!-- menu dropdown -->
+            <!-- menu dropdown/selectionmodeles -->
              <div
              v-if="showModelMenu"
              class="absolute z-50 mt-12 left-0 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-700 rounded shadow-xl w-48"
@@ -296,6 +300,7 @@ const selectModel = (model) => {
 
       <!-- conversation existante (messages.length > 0), affiche la liste des messages + champ collé en bas -->
       <div v-else class="flex-1 flex flex-col h-full">
+
         <!-- Messages + loader-->
         <div ref="messagesContainer"
         class="flex-1 overflow-y-auto px-4 py-6 w-full max-w-4xl mx-auto space-y-4">
@@ -344,6 +349,7 @@ const selectModel = (model) => {
           class="p-4  flex items-center space-x-2 px-4 py-2 w-full max-w-4xl mx-auto "
         >
 
+        <!-- imageUpload fonctionnalité a rajouter plutard -->
         <label for="imageUpload"
         class="bg-blue-500 hover:bg-blue-700 text-white px-4 py-2 rounded-lg disabled:opacity-50 focus:outline-none flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -412,7 +418,7 @@ const selectModel = (model) => {
 </template>
 
 <style>
-/* Optionnel : joli rendu pour les blocs de code */
+/* Optionnel  */
 .prose pre {
   background: #364356 ;
   color: #fff;
