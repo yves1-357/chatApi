@@ -301,6 +301,8 @@ const selectModel = (model) => {
       <!-- conversation existante (messages.length > 0), affiche la liste des messages + champ collé en bas -->
       <div v-else class="flex-1 flex flex-col h-full">
 
+
+
         <!-- Messages + loader-->
         <div ref="messagesContainer"
         class="flex-1 overflow-y-auto px-4 py-6 w-full max-w-4xl mx-auto space-y-4">

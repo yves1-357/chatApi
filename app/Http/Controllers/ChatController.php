@@ -9,6 +9,7 @@ use App\Models\Message;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
+
 class ChatController extends Controller{
     public function ask(Request $request)
 {
@@ -115,6 +116,7 @@ class ChatController extends Controller{
     ];
 
     $client = new Client();
+
 
     // retourne un stream SSE
     return response()->stream(
