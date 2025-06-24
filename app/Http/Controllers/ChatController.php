@@ -104,7 +104,7 @@ class ChatController extends Controller{
     $payload = [
         'model'      => $model,
         'messages'   => $messagesPayload,
-        'max_tokens' => 500,
+        'max_tokens' => 1000,
         'stream'     => true,
     ];
     $headers = [
@@ -121,10 +121,20 @@ class ChatController extends Controller{
     // retourne un stream SSE
     return response()->stream(
         function () use ($client, $headers, $payload, $conversation, $isNew) {
+            try {
             $resp = $client->post(
                 'https://openrouter.ai/api/v1/chat/completions',
                 ['headers'=>$headers,'json'=>$payload,'stream'=>true]
             );
+            } catch (\GuzzleHttp\Exception\ClientException $e) {
+                    Log::warning('Modèle échoué : ' . $payload['model'] . ' -> Tentative avec modèle de secours.: openai/gpt-4o-mini');
+                    $payload['model'] = 'openai/gpt-4o-mini';
+                    $resp = $client->post('https://openrouter.ai/api/v1/chat/completions', [
+                        'headers' => $headers,
+                        'json'    => $payload,
+                        'stream'  => true
+                    ]);
+                }
             $body   = $resp->getBody();
             $text   = '';
             $buffer = '';
