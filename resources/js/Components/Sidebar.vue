@@ -1,4 +1,6 @@
 <template>
+
+   <!--barre laterale aside app -->
   <aside class="flex flex-col w-64 h-screen bg-gray-900 text-white">
 
     <!-- nom du site / bouton nouveau chat -->
@@ -21,10 +23,12 @@
       </button>
     </div>
 
-    <!-- historique -->
+    <!-- historique-->
     <nav class="flex-1 px-4 py-6 overflow-y-auto">
       <div class="flex items-center justify-between mb-2">
         <div class="text-gray-400 text-xs">Historique</div>
+
+        <!-- bouton corbeille -->
         <button @click="effacerHistorique" class="text-xs text-red-400 hover:underline ml-2">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
   <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
@@ -32,6 +36,7 @@
         </button>
       </div>
 
+      <!-- Liste pour conversation + affichage -->
       <ul>
         <li
           v-for="conv in conversations"
@@ -76,57 +81,57 @@
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
 
-// -- declare les props fournies par le parent (Chat.vue)
+// -- declare les props fournies par le parent (Chat.vue) liste des conversations et leurs id de conversation en cours
 const props = defineProps({
   conversations: {
     type: Array,
-    required: true
+    required: true //tableau objet obligatoire
   },
   activeConversationId: {
     type: [Number, String, null],
     required: false,
-    default: null
+    default: null // pas obligatoire
   }
 })
 
-// -- definit les 2 events qu'on peut emettre
+// -- definit les 3 events et envoie signaux au chat principale
 const emit = defineEmits(['select-conversation', 'new-chat', 'instructions'])
 
-//-- bouton “new chat” : on remet à zéro
+//-- bouton “new chat” : envoie signal a chat.vue signalant de demarrer une conversation
 const newChat = () => {
   emit('new-chat')
 }
 
-// Instructions
+// signaux pour ouvrir le modal Instructions
 const openInstructions = () => {
     emit('instructions')
 }
 
-//-- clic sur une conversation => on émet son ID
+//-- signaux pour montre l'id la conversation ouvert
 const selectConversation = (id) => {
   emit('select-conversation', id)
 }
 
-//-- charge et affiche l’historique pour supprimer
+//-- declencher rechargement liste conversation apres suppression et res "pas assigné" car liste géré en prop par chat.vue
 const loadConversations = async () => {
   const res = await axios.get('/api/conversations')
 }
 
-//-- efface tout l’historique
+//-- foncntion asynchrone pour efface tout l’historique
 const effacerHistorique = async () => {
-  await axios.delete('/api/conversations')
-  // On prévient le parent qu'on vient de supprimer tout l’historique
-  await loadConversations()
-  newChat() // vider la conversation courante si on l'avait sélectionnée
+  await axios.delete('/api/conversations')// envoie requete delete au serveur
+
+  await loadConversations() // mets a jour la liste apres suppression
+  newChat() // lance new chat
 }
 
-//darkmode /light
+//indique si le theme est darkmode /light
 const isDark = ref(false)
-onMounted(()=>{
+onMounted(()=>{ // verification des l'ouverture (dark)
   isDark.value = document.documentElement.classList.contains('dark')
 })
 
-//vers mode sombre
+//change theme mode sombre
 const toggleDarkMode = () => {
     window.toggleDarkMode()
     isDark.value = !isDark.value

@@ -16,7 +16,7 @@ const activeConversationId = ref(null)
 // liste conversations Sidebar
 const conversations = ref([])
 
-/** chharge liste conversations **/
+/** fonction pour chharge liste conversations et les stocker **/
 const loadConversations = async () => {
   try {
     const res = await axios.get('/api/conversations')
@@ -25,15 +25,16 @@ const loadConversations = async () => {
     console.error('Erreur chargement conversations :', e)
   }
 }
-onMounted(loadConversations)
+onMounted(loadConversations) // afficher directement des l'ouverture
 
-/** charge messages du conversation choisie **/
+/** fonctions pour  charge messages du conversation choisie **/
 const loadMessages = async (conversationId) => {
   if (!conversationId) {
     messages.value = []
     return
   }
-  try {
+
+  try { //sinon utilise axios pour recuperer msg de cette conversation et mets a jour
     const res = await axios.get(`/api/conversations/${conversationId}/messages`)
     messages.value = res.data
   } catch (e) {
@@ -41,13 +42,13 @@ const loadMessages = async (conversationId) => {
   }
 }
 
-/**user clique sur un titre sur sidebar **/
+/**user clique sur un titre sur sidebar, on active et charge les messages **/
 const onSelectConversation = async (conversationId) => {
   activeConversationId.value = conversationId
   await loadMessages(conversationId)
 }
 
-/** user clique sur “newchat” **/
+/** user clique sur “newchat” on remet tout à zero**/
 const onNewChat = () => {
   activeConversationId.value = null
   messages.value = []
@@ -55,8 +56,7 @@ const onNewChat = () => {
 }
 
 
-// modal instructions
-
+// modal instructions fermeture + visibilité + ouverture + save
 const showInstructionsModal = ref(false)
 const customInstructions  = ref('')
 
@@ -66,7 +66,7 @@ function openInstructions(){
 
 function saveInstructions() {
 
-    // a envoyer plus tard au back end
+    // demarre une nvl conversation avec les instructions envoyé
     showInstructionsModal.value = false
 
     // repart sur new chat
@@ -74,6 +74,8 @@ function saveInstructions() {
 }
 
 /************************************************************************** */
+
+// fonction question user envoie => IA + gere reponse
 
 const envoieQuestion = async () => {
   if (!question.value.trim()) return
@@ -111,6 +113,7 @@ const envoieQuestion = async () => {
       })
     })
 
+    // lit le text en streaming + transformer en mode lisible
     const reader = res.body.getReader()
     const decoder = new TextDecoder()
     let done = false, value
@@ -120,9 +123,9 @@ const envoieQuestion = async () => {
     while (true) {
       ({done, value} = await reader.read())
       if (done) break
-
       const chunk = decoder.decode(value)
-      // on parcourt chaque ligne « data: {...} »
+
+      // on parcourt ligne par ligne du flux + garde lignes « data: {...} »
       for (const rawLine of chunk.split('\n')) {
         const line = rawLine.trim()
         if (!rawLine.startsWith('data:')) continue
@@ -134,10 +137,10 @@ const envoieQuestion = async () => {
         try {
           parsed = JSON.parse(dataStr)
         } catch {
-          continue  // JSON invalide, on passe à la ligne suivante
+          continue  // transforme en txt si JSON invalide, on passe à la ligne suivante
         }
 
-        // 5/ Partie réponse IA (delta content ou content)
+        // 5/ recupere partie réponse IA (delta content ou content)
         let fragment = parsed.choices?.[0]?.delta?.content
         if (!fragment && parsed.content) {
           fragment = parsed.content
@@ -151,7 +154,7 @@ if (messagesContainer.value) {
   messagesContainer.value.scrollTop = messagesContainer.value.scrollHeight
 }
         }
-        // 6/ Partie signal “is_new”
+        // 6/ si nouvelle conversation => si la reponse Ia contient is_New = new chat + active new chat
         if (parsed.is_new) {
           await loadConversations()
           activeConversationId.value = parsed.conversation_id
@@ -161,15 +164,16 @@ if (messagesContainer.value) {
 
     // 7/ Réinitialise la zone de saisie apres envoie question
     question.value = ''
-  } catch (error) {
+  } catch (error) { // affiche l'erreur si un bug dans l'envoie
     console.error('Streaming fetch error:', error)
+
     // N’écrase la réponse IA que si elle est encore vide
     if (!iaMsg.content) {
       iaMsg.content = 'Erreur de requête'
       messages.value = [...messages.value]
     }
   } finally {
-    chargement.value = false
+    chargement.value = false // succes ou erreur d'envoie desactive l'indicateur
   }
 }
 
@@ -213,7 +217,7 @@ const selectModel = (model) => {
 <template>
   <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
 
-    <!-- sidebar + event -->
+    <!-- sidebar props + event -->
     <Sidebar
       :conversations="conversations"
       :activeConversationId="activeConversationId"
@@ -232,7 +236,7 @@ const selectModel = (model) => {
                class="ml-2 text-s cursor-pointer"
                @click="showModelMenu = !showModelMenu">
 
-               <!-- affiche model ou x -->
+               <!-- affiche model ou x pour femer  -->
                 <template v-if="!showModelMenu">
                     <span v-if="selectModel"class="ml-2 px-2 py-1 rounded bg-gray-800 text-white text-sm">{{ selectedModel.name }}
                         </span>
@@ -244,6 +248,7 @@ const selectModel = (model) => {
                 </template>
 
             </span>
+
             <!-- menu dropdown/selectionmodeles -->
              <div
              v-if="showModelMenu"
@@ -272,7 +277,11 @@ const selectModel = (model) => {
         v-if="isNewChat"
         class="flex-1 flex flex-col items-center justify-center px-4"
       >
+
+      <!-- Affichage texte "hello" -->
         <div class="text-gray-600 dark:text-gray-300 mb-4 text-hello font-hello">Hello</div>
+
+        <!-- formulaire pour envoie question + empeche la page de recharger-->
         <form @submit.prevent="envoieQuestion" class="w-full max-w-3xl">
           <div class="relative">
             <input
@@ -282,6 +291,8 @@ const selectModel = (model) => {
               placeholder="Ask Stella"
               class="w-full bg-gray-800 dark:bg-gray-700 text-white placeholder-gray-400 px-4 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
+
+            <!-- bouton envoie question + desactivé si le champ est vide  -->
             <button
              dusk="send-button"
               type="submit"
@@ -306,13 +317,19 @@ const selectModel = (model) => {
         <div ref="messagesContainer"
         class="flex-1 overflow-y-auto px-4 py-6 w-full max-w-4xl mx-auto space-y-4">
           <div v-for="msg in messages" :key="msg.id" class="mb-4">
+
+            <!-- conteneur pour alignement message user a droite sinon autre a gauche -->
             <div class="flex w-full" :class="msg.role === 'user' ? 'justify-end' : 'justify-start' ">
+
+                <!-- coté assistant + transformation du text brut en HTML -->
                 <template v-if="msg.role === 'assistant'">
                 <div
                 class="prose dark:prose-invert bg-transparent max-w-2xl w-full"
                 v-html="renderMarkdown(msg.content)">
               </div>
               </template>
+
+              <!-- coté user + affichage du message -->
               <template v-else>
                 <div class="max-w-2xl w-full flex justify-end">
               <span
@@ -330,7 +347,7 @@ const selectModel = (model) => {
           </div>
         </div>
 
-           <!-- loader svg animé -->
+           <!-- Lors du chargement de reponse IA on mets loader svg animé -->
   <div v-if="chargement" class="flex w-full justify-start mb-4">
     <span
       class="flex items-center px-4 py-2 w-full max-w-4xl mx-auto"
@@ -344,7 +361,7 @@ const selectModel = (model) => {
 </svg>
     </span>
 </div>
-        <!-- écriture collé en bas -->
+        <!-- formulaire saisie, écriture collé en bas -->
         <form
           @submit.prevent="envoieQuestion"
           class="p-4  flex items-center space-x-2 px-4 py-2 w-full max-w-4xl mx-auto "
@@ -359,6 +376,8 @@ const selectModel = (model) => {
         <input type="file" id="imageUpload" @change="handleImageUpload" accept="image/*" class="hidden" />
         </label>
 
+
+        <!-- champ pour taper la question -->
           <input
             v-model="question"
             type="text"
@@ -367,6 +386,8 @@ const selectModel = (model) => {
 
           />
 
+
+          <!-- Bouton pour envoie question + desactivé quand l'Ia repond ou si champ de saisie est vide  -->
           <button
             type="submit"
             :disabled="chargement ||  (!question && !imageUpload)"
@@ -382,7 +403,7 @@ const selectModel = (model) => {
       </div>
     </main>
 
-    <!-- MODAL Instructions -->
+    <!-- Conteneur MODAL Instructions -->
     <div
       v-if="showInstructionsModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
