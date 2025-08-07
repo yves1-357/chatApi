@@ -8,7 +8,7 @@ use App\Models\Conversation;
 use App\Models\Message;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Auth;
 
 class ChatController extends Controller{
 
@@ -62,9 +62,18 @@ class ChatController extends Controller{
             // Si titre généré on utilise or mets la question(user) 40 premier lettre + enregsitrer dans bd et si ça existe on reprend
             $conversationTitle = $generatedTitle !== '' ? $generatedTitle : substr($question, 0, 40);
 
-            $conversation = Conversation::create(['title' => $conversationTitle]);
+            //conversation pr user connecte
+            $conversation = Auth::user()
+            ->conversations()
+            ->create(['title' => $conversationTitle]);
+
+            $isNew = true;
         } else {
-            $conversation = Conversation::find($conversationId);
+            //recupere si elle appartient au users
+            $conversation = Auth::user()
+            ->conversations()
+            ->findOrFail($conversationId);
+            $isNew = false;
         }
 
     //note si c'est une toute nouvelle conversation ou pas

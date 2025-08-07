@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Dotenv\Exception\ValidationException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 
 class AuthController extends Controller
@@ -36,18 +38,16 @@ class AuthController extends Controller
 
          $user = User::where('email', $validated['email'])->first();
 
-         if (! $user) {
-            return response()->json([
-                'message' => 'E-mail incorrect, veuillez vous inscrire.'
-            ], 422);
+         if (! $user || ! Hash::check($validated['password'], $user->password)) {
+           return response()->json([
+            'message' => 'Identifiants incorrects.'
+           ], 422);
+
         }
 
-        if (! Hash::check($validated['password'], $user->password)) {
-            return response()->json([
-                'message' => 'Mot de passe incorrect, veuillez réessayer.'
-            ], 422);
-        }
-
+        //authentif et regenre session
+        Auth::login($user);
+        $request->session()->regenerate();
         return response()->json([
             'message' => 'Connexion réussie',
             'user'    => ['id' => $user->id, 'name' => $user->name]
