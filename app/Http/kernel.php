@@ -4,10 +4,10 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
-// Middleware que vous avez déjà
+
 use App\Http\Middleware\HandleInertiaRequests;
 
-// Middleware Laravel/Core
+
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
@@ -20,18 +20,13 @@ class Kernel extends HttpKernel
      */
     protected $middlewareGroups = [
         'web' => [
-            // Inertia pour vos pages SPA
             HandleInertiaRequests::class,
-
-            // Binding automatique des route-model
             SubstituteBindings::class,
         ],
 
         'api' => [
-            // Limiteur standard Laravel
             'throttle:api',
 
-            // Binding automatique
             SubstituteBindings::class,
         ],
     ];
