@@ -77,7 +77,7 @@ const password = ref('')
 
 const submit = async () => {
   try {
-    await axios.post('/api/register', { name: name.value, email: email.value, password: password.value })
+    await axios.post('/register', { name: name.value, email: email.value, password: password.value })
     window.location.href = '/login'
   } catch (e) {
     alert(e.response?.data?.message || 'Erreur lors de l’inscription')

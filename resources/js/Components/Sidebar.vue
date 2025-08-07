@@ -55,8 +55,17 @@
     <!-- myprofile et toggle mode-->
     <div class="p-4 border-t border-gray-700">
       <div class="flex items-center space-x-3 justify-between  mb-1">
-        <img src="https://ui-avatars.com/api/?name=My" class="w-8 h-8 rounded-full" />
-        <span>My Profile</span>
+        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center text-white font-semibold">
+            {{ user.name.charAt(0).toUpperCase() }}
+        </div>
+        <span class="text-gray-200">{{ user.name }}</span>
+
+        <!-- logout icon -->
+         <span @click="showLogoutModal = true" class="cursor-pointer text-gray-200">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+        <path fill-rule="evenodd" d="M12 2.25a.75.75 0 0 1 .75.75v9a.75.75 0 0 1-1.5 0V3a.75.75 0 0 1 .75-.75ZM6.166 5.106a.75.75 0 0 1 0 1.06 8.25 8.25 0 1 0 11.668 0 .75.75 0 1 1 1.06-1.06c3.808 3.807 3.808 9.98 0 13.788-3.807 3.808-9.98 3.808-13.788 0-3.808-3.807-3.808-9.98 0-13.788a.75.75 0 0 1 1.06 0Z" clip-rule="evenodd"/>
+      </svg>
+         </span>
 
            <!-- dark/light-->
        <button @click="toggleDarkMode" class="p-2 rounded hover:bg-gray-700 dark:hover:bg-gray-600 ">
@@ -72,14 +81,49 @@
 
         </span>
        </button>
+
+
+  <!-- Logout Confirmation Modal -->
+   <div v-if="showLogoutModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-xs w-full">
+      <p class="text-gray-900 dark:text-gray-100 mb-4">Voulez-vous vous déconnecter ?</p>
+      <div class="flex justify-end space-x-2">
+        <button @click="confirmLogout" class="px-4 py-2 bg-red-600 text-white rounded">OK</button>
+        <button @click="showLogoutModal = false" class="px-4 py-2 bg-gray-300 rounded">Annuler</button>
+      </div>
+    </div>
+  </div>
       </div>
     </div>
   </aside>
 </template>
 
 <script setup>
+import { useRemember } from '@inertiajs/vue3'
 import axios from 'axios'
 import { ref, onMounted } from 'vue'
+
+const user =ref({name: '', avatarUrl: ''})
+const showLogoutModal = ref(false)
+
+onMounted(() => {
+  const stored = localStorage.getItem('user')
+  if (stored) {
+    const u = JSON.parse(stored)
+    user.value.name = u.name
+  } else {
+    user.value.name = 'Utilisateur'
+  }
+})
+
+
+//methode deconnexion
+function confirmLogout(){
+   localStorage.removeItem('user')
+
+   //redirection
+   window.location.href ='/'
+}
 
 // -- declare les props fournies par le parent (Chat.vue) liste des conversations et leurs id de conversation en cours
 const props = defineProps({
@@ -114,12 +158,12 @@ const selectConversation = (id) => {
 
 //-- declencher rechargement liste conversation apres suppression et res "pas assigné" car liste géré en prop par chat.vue
 const loadConversations = async () => {
-  const res = await axios.get('/api/conversations')
+  const res = await axios.get('/conversations')
 }
 
 //-- foncntion asynchrone pour efface tout l’historique
 const effacerHistorique = async () => {
-  await axios.delete('/api/conversations')// envoie requete delete au serveur
+  await axios.delete('/conversations')// envoie requete delete au serveur
 
   await loadConversations() // mets a jour la liste apres suppression
   newChat() // lance new chat

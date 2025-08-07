@@ -65,7 +65,7 @@ const password = ref('')
 
 const submit = async () => {
   try {
-    const res = await axios.post('/api/login', { email: email.value, password: password.value })
+    const res = await axios.post('/login', { email: email.value, password: password.value })
     localStorage.setItem('user', JSON.stringify(res.data.user))
     window.location.href = '/chat'
   } catch (e) {

@@ -19,7 +19,7 @@ const conversations = ref([])
 /** fonction pour chharge liste conversations et les stocker **/
 const loadConversations = async () => {
   try {
-    const res = await axios.get('/api/conversations')
+    const res = await axios.get('/conversations')
     conversations.value = res.data
   } catch (e) {
     console.error('Erreur chargement conversations :', e)
@@ -35,7 +35,7 @@ const loadMessages = async (conversationId) => {
   }
 
   try { //sinon utilise axios pour recuperer msg de cette conversation et mets a jour
-    const res = await axios.get(`/api/conversations/${conversationId}/messages`)
+    const res = await axios.get(`/conversations/${conversationId}/messages`)
     messages.value = res.data
   } catch (e) {
     console.error('Erreur chargement messages :', e)
@@ -102,9 +102,13 @@ const envoieQuestion = async () => {
 
   try {
     // 3/ Lance la requête en streaming
-    const res = await fetch('/api/chat', {
+    const res = await fetch('/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json',
+        // token CSRF pour Laravel
+    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+       },
       body: JSON.stringify({
         question: question.value,
         conversation_id: activeConversationId.value,
