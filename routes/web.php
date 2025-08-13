@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\ConversationController;
+use App\Http\Controllers\InstructionController;
 use App\Http\Controllers\MessageController;
 
 /*
@@ -48,4 +49,9 @@ Route::middleware('auth')->group(function () {
 
     // déconnexion
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    //instructions
+    Route::get('/me/instructions', [InstructionController::class, 'show']);
+    Route::put('/me/instructions', [InstructionController::class, 'update']);
+    Route::delete('/me/instructions', [InstructionController::class, 'destroy']);
 });
