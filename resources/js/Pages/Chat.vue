@@ -9,6 +9,18 @@ const chargement = ref(false)
 const messages = ref([])
 const renderMarkdown = (md) => marked.parse(md || '')
 const messagesContainer = ref(null)
+const user = ref({id: null, name:''})
+onMounted(() => {
+  const stored = localStorage.getItem('user')
+  if (stored) {
+    user.value = JSON.parse(stored)
+  }
+})
+
+const sidebarVisible = ref(true)
+const toggleSidebar = () => {
+    sidebarVisible.value = !sidebarVisible.value
+}
 
 // id conversation en cours (null == new chat)
 const activeConversationId = ref(null)
@@ -59,20 +71,50 @@ const onNewChat = () => {
 // modal instructions fermeture + visibilité + ouverture + save
 const showInstructionsModal = ref(false)
 const customInstructions  = ref('')
+const showInstructionNotif = ref(false);
+const instructionNotif = ref('');
+const instructionNotifColor = ref('bg-blue-500');
+
+function notifyInstruction(msg, color = 'bg-blue-500'){
+    instructionNotif.value = msg;
+    instructionNotifColor.value = color;
+    showInstructionNotif.value = true;
+    setTimeout(()=> showInstructionNotif.value = false, 2000);
+}
 
 function openInstructions(){
     showInstructionsModal.value = true
 }
 
-function saveInstructions() {
+async function saveInstructions() {
 
-    // demarre une nvl conversation avec les instructions envoyé
-    showInstructionsModal.value = false
-
-    // repart sur new chat
+    try {
+    await axios.put('/me/instructions', {instructions: customInstructions.value})
     onNewChat()
+    } catch (e){
+        console.error(e)
+        alert('echec de sauvegarde des instructions.')}
+        finally {
+    showInstructionsModal.value = false
+         }
+
+    notifyInstruction("Instruction sauvegardées !")
 }
 
+async function deleteInstructions(){
+    try {
+    await axios.delete('/me/instructions')
+    customInstructions.value = ''
+    onNewChat()}
+    catch (e){
+        console.error(e)
+        alert('Echec de suppression instructions')
+    } finally {
+  showInstructionsModal.value = false
+    }
+
+   notifyInstruction("Instruction suppriméss !", 'bg-red-500')
+}
 /************************************************************************** */
 
 // fonction question user envoie => IA + gere reponse
@@ -221,8 +263,18 @@ const selectModel = (model) => {
 <template>
   <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
 
+    <!-- 👇 Bouton burger en haut à gauche -->
+    <div class="absolute top-4 left-4 z-50 cursor-pointer" @click="toggleSidebar">
+      <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+           xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"/>
+      </svg>
+    </div>
+
     <!-- sidebar props + event -->
     <Sidebar
+    v-if="sidebarVisible"
       :conversations="conversations"
       :activeConversationId="activeConversationId"
       @select-conversation="onSelectConversation"
@@ -230,11 +282,12 @@ const selectModel = (model) => {
       @instructions="openInstructions"
     />
 
+
     <!-- zone centrale chat -->
     <main class="flex-1 flex flex-col relative overflow-hidden">
       <div v-if="isNewChat" class=" text-white py-4">
-        <div class="max-w-1xl mx-auto px-2 flex items-center justify-left">
-          <span class="text-xl font-bold">Stella</span>
+        <div class="max-w-1xl mx-auto pl-10 flex items-center justify-left">
+          <span class="text-xl font-bold ml-8">Stella</span>
           <span
                dusk="model-selector"
                class="ml-2 text-s cursor-pointer"
@@ -283,7 +336,7 @@ const selectModel = (model) => {
       >
 
       <!-- Affichage texte "hello" -->
-        <div class="text-gray-600 dark:text-gray-300 mb-4 text-hello font-hello">Hello</div>
+        <div class="text-gray-600 dark:text-gray-300 mb-4 text-hello font-hello">Hello, {{ user.name }}</div>
 
         <!-- formulaire pour envoie question + empeche la page de recharger-->
         <form @submit.prevent="envoieQuestion" class="w-full max-w-3xl">
@@ -417,6 +470,7 @@ const selectModel = (model) => {
           Instructions personnalisées
         </h2>
         <textarea
+        dusk="custom-instructions-input"
           v-model="customInstructions"
           rows="5"
           class="w-full bg-gray-700 dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
@@ -424,13 +478,15 @@ const selectModel = (model) => {
         <div class="mt-4 flex justify-end space-x-2">
           <button
           v-if="customInstructions"
+          dusk="delete-instructions"
             type="button"
-            @click="customInstructions = ''"
+            @click="deleteInstructions"
             class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded"
           >
             Delete
           </button>
           <button
+          dusk="save-instructions"
             type="button"
             @click="saveInstructions"
             class="px-4 py-2 bg-blue-600 hover:bg-blue-600 text-white rounded"
@@ -441,6 +497,14 @@ const selectModel = (model) => {
       </div>
     </div>
   </div>
+  <!-- Notification instructions -->
+<div
+  v-if="showInstructionNotif"
+  :class="['fixed top-4 left-1/2 -translate-x-1/2  bg-blue-500 text-white px-4 py-2 rounded shadow z-50',instructionNotifColor]"
+>
+  {{ instructionNotif }}
+</div>
+
 </template>
 
 <style>
