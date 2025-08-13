@@ -23,6 +23,9 @@ class ChatController extends Controller{
         $customInstructions ='';
     }
 
+      // model par default si rien n'est précisé
+    $model   = $request->input('model', 'openai/gpt-4o-mini');
+
     // enregistre les instructions recues dans le log (facile si y'a des bugs)
     //Log::info('custom instructions reçues :', ['instructions' => $customInstructions]);
 
@@ -65,7 +68,12 @@ class ChatController extends Controller{
             //conversation pr user connecte
             $conversation = Auth::user()
             ->conversations()
-            ->create(['title' => $conversationTitle]);
+            ->create([
+                'title' => $conversationTitle,
+                'name' => Auth::user()->name,
+                'email' => Auth::user()->email,
+                'model' => $model,
+            ]);
 
             $isNew = true;
         } else {
@@ -84,6 +92,8 @@ class ChatController extends Controller{
         'conversation_id' => $conversation->id,
         'role'            => 'user',
         'content'         => $question,
+        'name'            => Auth::user()->name,
+        'email'           => Auth::user()->email,
     ]);
 
     // recupere 10 derniers message dans conversation pour envoie Ia ça l'aide a suivre les conversations
@@ -130,8 +140,6 @@ $system = [
         [ ['role'=>'user','content'=> $question] ]
     );
 
-    // model par default si rien n'est précisé
-    $model   = $request->input('model', 'openai/gpt-4o-mini');
 
     $payload = [ // preparation d'info envoyer a l'iA pour génére reponse
         'model'      => $model,
