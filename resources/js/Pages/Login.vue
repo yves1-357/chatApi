@@ -21,6 +21,7 @@
           <div>
             <label class="block text-gray-700 dark:text-gray-300 mb-1">Adresse e-mail</label>
             <input
+            dusk="login-email"
               v-model="email"
               type="email"
               required
@@ -31,6 +32,7 @@
           <div>
             <label class="block text-gray-700 dark:text-gray-300 mb-1">Mot de passe</label>
             <input
+            dusk="login-password"
               v-model="password"
               type="password"
               required
@@ -40,6 +42,7 @@
           </div>
 
           <button
+          dusk="login-submit"
             type="submit"
             class="w-full mt-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
@@ -60,8 +63,8 @@
 import { ref } from 'vue'
 import axios from 'axios'
 
-const email = ref('')
-const password = ref('')
+const email = ref('dean@yahoo.fr')
+const password = ref('dede1234')
 
 const submit = async () => {
   try {

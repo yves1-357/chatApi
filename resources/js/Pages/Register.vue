@@ -22,6 +22,7 @@
           <div>
             <label class="block text-gray-700 dark:text-gray-300 mb-1">Pseudo</label>
             <input
+            dusk="register-name"
               v-model="name"
               type="text"
               required
@@ -32,6 +33,7 @@
           <div>
             <label class="block text-gray-700 dark:text-gray-300 mb-1">Adresse e-mail</label>
             <input
+            dusk="register-email"
               v-model="email"
               type="email"
               required
@@ -42,6 +44,7 @@
           <div>
             <label class="block text-gray-700 dark:text-gray-300 mb-1">Mot de passe</label>
             <input
+            dusk="register-password"
               v-model="password"
               type="password"
               required
@@ -51,6 +54,7 @@
           </div>
 
           <button
+          dusk="register-submit"
             type="submit"
             class="w-full mt-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           >

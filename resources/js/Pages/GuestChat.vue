@@ -35,7 +35,7 @@
           Stella
         </h2>
         <p class="text-lg max-w-lg leading-relaxed opacity-90">
-          Boostez vos idées et gagnez en efficacité. Démarrez une discussion pour planifier, apprendre, rédiger et plus encore avec Stella, votre IA amicale.
+        Besoin d'un coup de pouce ? Discutez avec Stella, votre IA de confiance, pour développer vos idées, structurer vos écrits et accomplir vos tâches plus rapidement.
         </p>
         <button
           @click="$inertia.visit('/login')"
