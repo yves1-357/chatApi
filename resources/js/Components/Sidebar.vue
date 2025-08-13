@@ -16,6 +16,7 @@
         New chat
       </button>
       <button
+      dusk ="open-instructions-modal"
         @click="openInstructions"
         class="mt-4 px-4 py-2 bg-blue-600 rounded hover:"
       >
@@ -37,11 +38,12 @@
       </div>
 
       <!-- Liste pour conversation + affichage -->
-      <ul>
+      <ul dusk="conversation-sidebar">
         <li
           v-for="conv in conversations"
           :key="conv.id"
           @click="selectConversation(conv.id)"
+          :dusk="`sidebar-conv-${conv.id}`"
           :class="[
             'py-2 px-2 hover:bg-gray-800 rounded cursor-pointer',
             { 'bg-gray-800': conv.id === activeConversationId }
@@ -105,6 +107,7 @@ import { ref, onMounted } from 'vue'
 
 const user =ref({name: '', avatarUrl: ''})
 const showLogoutModal = ref(false)
+
 
 onMounted(() => {
   const stored = localStorage.getItem('user')
