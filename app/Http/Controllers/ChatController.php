@@ -24,7 +24,7 @@ class ChatController extends Controller{
     }
 
     // enregistre les instructions recues dans le log (facile si y'a des bugs)
-    Log::info('custom instructions reçues :', ['instructions' => $customInstructions]);
+    //Log::info('custom instructions reçues :', ['instructions' => $customInstructions]);
 
     $generatedTitle = ''; //stocke le titre qui pourrait etre génére
 
@@ -77,7 +77,7 @@ class ChatController extends Controller{
         }
 
     //note si c'est une toute nouvelle conversation ou pas
-    $isNew = ! $conversationId;
+    //$isNew = ! $conversationId; *******************************************
 
     // enregistre tout de suite le question user en base
     Message::create([
@@ -107,15 +107,21 @@ class ChatController extends Controller{
     ]);
 
 
-    // si user ecrit instructions personnalisé on utilise sinon prends ceux de base
-    $systemContent = $customInstructions = !empty($customInstructions)
-            ? $customInstructions
-            : $defaultSystemPrompt;
+    ////// si user ecrit instructions personnalisé on utilise sinon prends ceux de base
+   $saved = Auth::user()->instruction?->content;
+   $systemContent = (is_string($saved)&& trim($saved) !=='')
+   ? $saved
+   : $defaultSystemPrompt;
 
-        $system = [ // crée objet pour instructions choisie
-            'role'    => 'system',
-            'content' => $systemContent,
-        ];
+   Log::info('instructions utilisées', [
+    'source'  => (isset($saved) && trim((string)$saved) !== '') ? 'db' : 'default',
+    'user_id' => Auth::id(),
+]);
+
+$system = [
+    'role' => 'system',
+    'content' => $systemContent,
+];
 
     // ici on fusionne prompt + historique + nouvelle question ( paquet complet que l'Ia recoit et generer une reponse)
     $messagesPayload = array_merge(
