@@ -128,11 +128,12 @@ public function testUserCanRegister()
     $this->browse(function (Browser $browser) {
         $browser->visit('/register')
                 ->type('@register-name', 'Test')
-                ->type('@register-email', 'user12@hotmail.com')
-                ->type('@register-password', 'passWord123')
+                ->type('@register-email', 'ZeusZolasi@hotmail.com')
+                ->type('@register-password', 'Zoo7823you')
                 ->press('@register-submit')
-                ->waitForLocation('/login', 10)
+                ->waitForLocation('/login')
                 ->assertPathIs('/login');
+
     });
 }
 
@@ -145,13 +146,13 @@ public function testUserCanLogin()
 {
     $this->browse(function (Browser $browser) {
         $browser->visit('/login')
-                ->type('@login-email', 'testuser@example.com')
-                ->type('@login-password', 'password123')
+                ->type('@login-email', 'ZeusZolasi@hotmail.com')
+                ->type('@login-password', 'Zoo7823you')
                 ->press('@login-submit')
-                ->pause(1000)
-                ->waitForLocation('/chat', 10)
+                ->waitForLocation('/chat')
                 ->assertPathIs('/chat')
-                ->assertSee('Hello');
+                ->assertAuthenticated(); // Vérification importante
+
     });
 }
 
