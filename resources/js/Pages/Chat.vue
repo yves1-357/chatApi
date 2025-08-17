@@ -237,13 +237,20 @@ const isNewChat = computed(() => {
 
 const models = [
   { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
+  {id: 'openai/o3-pro', name:'GPT-o3'},
+  {id: 'openai/gpt-5-chat', name: 'GPT-5'},
   { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
+  {id:'google/gemini-2.5-flash-lite', name:'Gemini-Flash-2.5'},
    { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5' },
    {  id: 'anthropic/claude-3-sonnet', name: 'Claude 3 Vision'},
+   {id: 'anthropic/claude-opus-4.1', name:'Claude-4.1'},
   { id: 'deepseek/deepseek-chat-v3-0324:free', name: 'DeepSeek V3'},
+  {id: 'tngtech/deepseek-r1t2-chimera:free', name: 'DeepSeek R1'},
   { id: 'moonshotai/kimi-vl-a3b-thinking:free', name: 'Kimi Vision'},
    { id: 'mistralai/mistral-7b-instruct:free', name: 'Mistral 7B'},
   { id: 'meta-llama/llama-3-8b-instruct', name: 'Llama 3' },
+  {id: 'x-ai/grok-4', name: 'Grok-4'},
+  {id: 'x-ai/grok-3-mini', name: 'Grok-3mini'}
 
   //****  a rajouter plus de modeles plutard s'il le faut****
 
@@ -336,7 +343,7 @@ const selectModel = (model) => {
       >
 
       <!-- Affichage texte "hello" -->
-        <div class="text-gray-600 dark:text-gray-300 mb-4 text-hello font-hello">Hello, {{ user.name }}</div>
+        <div class="text-gray-600 dark:text-gray-300 mb-4 text-hello font-hello">Hi, {{ user.name }}</div>
 
         <!-- formulaire pour envoie question + empeche la page de recharger-->
         <form @submit.prevent="envoieQuestion" class="w-full max-w-3xl">
