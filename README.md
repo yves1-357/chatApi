@@ -1,4 +1,11 @@
-# Stella AI - Clone de GPT (Projet Laravel + Vue 3)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ton-repo/ton-projet/main/public/logo-stella.png" alt="Logo Stella" width="200"/>
+</p>
+
+
+<div align="center" style="background-color:#4c4cff; padding: 10px; border-radius: 8px;">
+  <h1 style="color:white; margin: 0;">Stella AI - Clone de GPT (Laravel + Vue 3)</h1>
+</div>
 
 ## 🚀 Présentation
 
