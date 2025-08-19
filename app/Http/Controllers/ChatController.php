@@ -176,8 +176,8 @@ $system = [
 
             // si erreur modele + log message + prends backup modele + relance
             } catch (\GuzzleHttp\Exception\ClientException $e) {
-                    Log::warning('Modèle échoué : ' . $payload['model'] . ' -> Tentative avec modèle de secours.: google/gemini-pro-1.5');
-                    $payload['model'] = 'google/gemini-pro-1.5';
+                    Log::warning('Modèle échoué : ' . $payload['model'] . ' -> Tentative avec modèle de secours.: openai/gpt-4o-mini');
+                    $payload['model'] = 'openai/gpt-4o-mini';
                     $resp = $client->post('https://openrouter.ai/api/v1/chat/completions', [
                         'headers' => $headers,
                         'json'    => $payload,
