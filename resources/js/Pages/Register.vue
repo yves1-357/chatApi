@@ -1,4 +1,3 @@
-<!-- resources/js/Pages/Register.vue -->
 <template>
   <div class="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
     <!-- Barre supérieure -->

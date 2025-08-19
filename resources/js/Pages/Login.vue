@@ -1,4 +1,3 @@
-<!-- resources/js/Pages/Login.vue -->
 <template>
   <div class="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900">
     <!-- Barre supérieure -->
@@ -63,8 +62,8 @@
 import { ref } from 'vue'
 import axios from 'axios'
 
-const email = ref('dean@yahoo.fr')
-const password = ref('dede1234')
+const email = ref('')
+const password = ref('')
 
 const submit = async () => {
   try {

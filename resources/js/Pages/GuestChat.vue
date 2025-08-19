@@ -1,4 +1,3 @@
-<!-- resources/js/Pages/GuestChat.vue -->
 <template>
   <div class="min-h-screen bg-gray-900 text-white flex flex-col *animate-fadeIn*">
     <!-- Header -->
@@ -27,9 +26,9 @@
       </div>
     </header>
 
-    <!-- Main Hero Section -->
+    <!-- Main Section -->
     <main class="flex-1 flex flex-col md:flex-row items-center px-8 py-16 space-y-12 md:space-y-0 md:space-x-16">
-      <!-- Left: Title & CTA -->
+      <!-- Left: Title  -->
       <section class="md:w-1/2 space-y-6">
         <h2 class="text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400 animate-textPulse">
           Stella
@@ -45,7 +44,7 @@
         </button>
       </section>
 
-      <!-- Right: Illustration & Example -->
+      <!-- Right: Illustration & Exemple -->
       <section class="md:w-1/2 flex justify-center">
         <div class="bg-gray-800 rounded-3xl p-6 space-y-6 w-full max-w-md shadow-2xl hover:shadow-high transition-shadow duration-300 transform hover:-translate-y-2">
            <transition name="fade">
@@ -74,7 +73,7 @@
 </template>
 
 <script setup>
-// Simple static landing page with animations and rotating examples
+//  Static simple animations pour l'accueil
 import { ref, onMounted, onUnmounted } from 'vue'
 import illus1 from '@/assets/illustration.jpg'
 import illus2 from '@/assets/illustration2.jpg'
@@ -140,7 +139,7 @@ onUnmounted(() => {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
 }
 
-/* Fade transition for slides */
+/* transition pour les  slides */
 .fade-enter-active, .fade-leave-active {
   transition: opacity 2s ease;
 }
