@@ -19,19 +19,19 @@ L'objectif est de fournir une expérience utilisateur proche d'un assistant virt
 * **Tailwind CSS** : mise en page moderne et responsive
 * **OpenRouter API** : accès aux modèles d'IA (GPT-4o, Gemini, etc.)
 * **Laravel Dusk** : tests end-to-end du frontend (UI + interactions)
-* **PlantUML** : création du diagramme UML des classes du projet
+
 
 ---
 
 ## 🔐 Fonctionnalités principales
 
-* 🔑 Authentification sécurisée (inscription / connexion / déconnexion)
-* 💬 Chat avec l'IA avec streaming SSE (réponses en direct)
-* 🔹 Gestion des conversations : création, renommage, suppression individuelle et suppression en masse
-* 🤖 Choix du modèle d'IA (GPT, Gemini...)
-* ✏️ Instructions personnalisées pour guider le comportement de l'IA
-* 🌌 Mode sombre / clair
-* 🔒 Suppression du compte utilisateur (avec confirmation)
+* Authentification sécurisée (inscription / connexion / déconnexion)
+* Chat avec l'IA avec streaming SSE (réponses en direct)
+* Gestion des conversations : création, renommage, suppression individuelle et suppression en masse
+* Choix du modèle d'IA (GPT, Gemini...)
+* Instructions personnalisées pour guider le comportement de l'IA
+* Mode sombre / clair
+* Suppression du compte utilisateur (avec confirmation)
 
 ---
 
@@ -40,7 +40,7 @@ L'objectif est de fournir une expérience utilisateur proche d'un assistant virt
 * `app/Models` : User, Conversation, Message, UserInstruction
 * `app/Http/Controllers` : AuthController, ChatController, MessageController, etc.
 * `resources/js/Pages` : composants Vue (Chat.vue, Login.vue, Register.vue, etc.)
-* `resources/js/Components` : Sidebar, MessageList, ChatInput, etc.
+* `resources/js/Components` : Sidebar, ChatInput, etc.
 
 ---
 
@@ -72,11 +72,11 @@ L'application est **fonctionnelle et stable**.
 
 ## 🔗 Utilisation
 
-1. Créer un compte
-2. Discuter avec Stella 🤖
-3. Gérer vos conversations
-4. Modifier les instructions système si besoin
-5. Supprimer votre compte si vous quittez l'aventure
+* Créer un compte
+* Discuter avec Stella 🤖
+* Gérer vos conversations
+* Modifier les instructions système si besoin
+* Supprimer votre compte si vous quittez l'aventure
 
 ---
 
@@ -84,4 +84,4 @@ L'application est **fonctionnelle et stable**.
 
 Ce projet a été développé dans un cadre d'apprentissage complet Laravel + Vue 3 avec une rigueur de qualité, tests, cache, et architecture bien conçue.
 
-> Merci d'avoir utilisé Stella AI ✨
+> Stella AI ✨
