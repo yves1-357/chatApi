@@ -47,6 +47,19 @@ Route::middleware('auth')->group(function () {
     Route::delete('/conversations', [ConversationController::class, 'destroyAll'])
          ->name('conversations.destroy');
 
+    // renommer la conversation
+    Route::put('/conversations/{id}', [ConversationController::class, 'update'])
+     ->name('conversations.update');
+
+    // supprimer une conversation
+    Route::delete('/conversations/{id}', [ConversationController::class, 'destroy'])
+     ->name('conversations.destroy.single');
+
+     // suppression du compte definitivement
+
+     Route::delete('/me/account', [AuthController::class, 'destroyAccount']);
+
+
     // déconnexion
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
