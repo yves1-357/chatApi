@@ -258,7 +258,7 @@ const models = [
 
 ]
 
-let selectedModel = models[0] //par defaut gpt-4o
+let selectedModel = models[0] //par defaut gpt-5
 const showModelMenu = ref(false)
 
 //changement de modeles
@@ -272,7 +272,7 @@ const selectModel = (model) => {
 <template>
   <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
 
-    <!-- 👇 Bouton burger en haut à gauche -->
+    <!--  Bouton en haut à gauche -->
     <div class="absolute top-4 left-4 z-50 cursor-pointer" @click="toggleSidebar">
       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"
            xmlns="http://www.w3.org/2000/svg">
