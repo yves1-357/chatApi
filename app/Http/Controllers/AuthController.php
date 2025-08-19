@@ -53,5 +53,31 @@ class AuthController extends Controller
             'user'    => ['id' => $user->id, 'name' => $user->name]
         ]);
     }
+
+    public function destroyAccount(Request $request)
+{
+    $user = $request->user();
+
+    Auth::logout(); // Déconnexion de l'utilisateur
+
+    // Supprimer ses instructions
+    $user->instruction()?->delete();
+
+    // Supprimer ses messages via les conversations
+    foreach ($user->conversations as $conversation) {
+        $conversation->messages()->delete(); // supprime les messages liés
+        $conversation->delete(); // ensuite supprime la conversation
+    }
+
+    // Supprimer l'utilisateur
+    $user->delete();
+
+    // Invalider la session
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return response()->json(['message' => 'Compte supprimé avec succès'], 200);
+}
+
 }
 

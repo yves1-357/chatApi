@@ -9,6 +9,7 @@ use Inertia\Inertia;
 
 class ConversationController extends Controller
 {
+
     public function index(){// renvoie conversations du user connecte
         $conversations = Auth::user()
         ->conversations()
@@ -26,4 +27,29 @@ class ConversationController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    public function update($id){
+
+        request()->validate([
+            'title' => 'required|string|max:255',
+        ]);
+
+        $conversation = Conversation::where('user_id', Auth::id())->findOrFail($id);
+
+        $conversation->title = request()->input('title');
+        $conversation->save();
+
+        return response()->json(['message' => 'Titre mis a jour avec succés.']);
+
+    }
+
+    public function destroy($id)
+{
+
+    $conversation = Conversation::where('user_id', Auth::id())->findOrFail($id);
+    $conversation->delete();
+
+    return response()->json(['message' => 'Conversation supprimée avec succès.']);
+}
+
 }
