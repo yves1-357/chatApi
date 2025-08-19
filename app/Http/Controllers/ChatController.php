@@ -26,7 +26,7 @@ class ChatController extends Controller{
     }
 
       // model par default si rien n'est précisé
-    $model   = $request->input('model', 'openai/gpt-4o-mini');
+    $model   = $request->input('model', 'openai/gpt-5-chat');
 
     // enregistre les instructions recues dans le log (facile si y'a des bugs)
     //Log::info('custom instructions reçues :', ['instructions' => $customInstructions]);
@@ -46,7 +46,7 @@ class ChatController extends Controller{
                 'Authorization'  => 'Bearer ' . env('OPENROUTER_API_KEY'),
                 'OpenAI-Referer' => 'https://localhost',
             ])->post('https://openrouter.ai/api/v1/chat/completions', [
-                'model'       => 'openai/gpt-4o-mini',
+                'model'       => 'openai/gpt-5-chat',
                 'messages'    => [
                     ['role' => 'system', 'content' => $titlePrompt],
                     ['role' => 'user',   'content' => $question],

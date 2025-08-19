@@ -237,10 +237,10 @@ const isNewChat = computed(() => {
 // choix modeles
 
 const models = [
-  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
-  {id: 'openai/gpt-4o-2024-08-06', name:'GPT-4o'},
   {id: 'openai/gpt-5-chat', name: 'GPT-5'},
   {id: 'openai/gpt-5-mini', name: 'GPT-5-mini'},
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini' },
+  {id: 'openai/gpt-4o-2024-08-06', name:'GPT-4o'},
   { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5' },
   {id:'google/gemini-2.5-flash-lite', name:'Gemini-Flash-2.5'},
    { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5' },
