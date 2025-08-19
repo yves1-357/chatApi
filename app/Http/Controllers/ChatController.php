@@ -9,6 +9,8 @@ use App\Models\Message;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+
 
 class ChatController extends Controller{
 
@@ -96,6 +98,7 @@ class ChatController extends Controller{
         'email'           => Auth::user()->email,
     ]);
 
+    Cache::forget("user:" . Auth::id() . ":conversation:" . $conversation->id . ":messages");
     // recupere 10 derniers message dans conversation pour envoie Ia ça l'aide a suivre les conversations
     $history = Message::where('conversation_id', $conversation->id)
         ->orderBy('created_at')
@@ -227,6 +230,9 @@ $system = [
                 'role'            => 'assistant',
                 'content'         => $text,
             ]);
+
+            Cache::forget("user:" . Auth::id() . ":conversation:" . $conversation->id . ":messages");
+
         },
         // fin réponse SSE + reponse arrive au flux
         200,
